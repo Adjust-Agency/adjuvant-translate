@@ -8,7 +8,8 @@ class Translator {
 	private $languages			= array('fr', 'nl');
 	private $trads				= array();
 	
-	public function __construct(){
+	public function __construct()
+	{
 		$this->load();
 	}
 	
@@ -22,7 +23,8 @@ class Translator {
 		}				
 	}
 	
-	private function insertTrad($key, $lang){
+	private function insertTrad($key, $lang)
+	{
 		$row = \DB::table('translations')->select('id')->where('key','=', $key)->first();
 		if(empty($row->id)){
 			\DB::table('translations')->insert(array(
@@ -32,7 +34,8 @@ class Translator {
 		}		
 	}
 	
-	public function _($key, $lang = null){
+	public function _($key, $lang = null)
+	{
 			
 		if(is_null($lang)) $lang = $this->language;
 		if($this->insert) $this->insertTrad($key, $lang);		
