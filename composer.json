@@ -2,8 +2,7 @@
     "name": "adjuvant/translate",
     "description": "Translate component for Adjust Projects",
     "require": {
-        "illuminate/database": "5.0.*",
-        "vlucas/phpdotenv": "~1.0"
+        "illuminate/database": "5.0.*"
     },
     "authors": [
         {

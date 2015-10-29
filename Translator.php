@@ -1,45 +1,100 @@
 <?php namespace Adjuvant\Translate;
+	
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class Translator {
 	
 	public $insert 				= true;
 	public $language 			= "fr";
+	public $table				= "translations";
 	
-	private $languages			= array('fr', 'nl');
-	private $trads				= array();
+	protected $languages			= array('fr', 'nl');
+	protected $trads				= array();
+	protected $config				= array(
+		'driver' => 'mysql',
+		'charset'   => 'utf8',
+		'collation' => 'utf8_unicode_ci',
+		'prefix'    => ''
+	);
 	
-	public function __construct()
+	protected $db					= null; 
+	
+	private $loaded	= false;
+	
+	private function checkEnv()
 	{
-		$this->load();
+		if( empty($this->config['username'] ) ) {
+			
+			if( !empty($_ENV['DB_USERNAME']) ){
+			    $this->config['driver']    = $_ENV['DB_CONNECTION'];
+			    $this->config['host']      = $_ENV['DB_HOST'];
+			    $this->config['database']  = $_ENV['DB_DATABASE'];
+			    $this->config['username']  = $_ENV['DB_USERNAME'];
+			    $this->config['password']  = $_ENV['DB_PASSWORD'];
+			}
+			
+		}
+		
+		
 	}
 	
-	private function load(){
-		$trads = \DB::select('SELECT * FROM translations');
-		foreach($trads as $trad){
-			foreach($this->languages as $lang){
-				if(empty($this->trads)) $this->trads[$lang] = array();
-				if(!empty($trad->$lang)) $this->trads[$lang][$trad->key] = $trad->$lang;
+	private function checkDatabase()
+	{
+		$this->checkEnv();
+		if( is_null( $this->db ) ) {
+			$this->db = new Capsule();
+			$this->db->addConnection($this->config);
+			$this->db->setAsGlobal();			
+		}
+	}
+	
+	private function load()
+	{
+		
+		if( !$this->loaded ) {
+		
+			$this->checkDatabase();		
+			
+			$trads = $this->db->table($this->table)->get();
+			foreach($trads as $trad){
+				$trad = (object) $trad;
+				foreach($this->languages as $lang){
+					if(empty($this->trads)) $this->trads[$lang] = array();
+					if(!empty($trad->$lang)) $this->trads[$lang][$trad->key] = $trad->$lang;
+				}
 			}
-		}				
+			$this->loaded = true;
+		}			
 	}
 	
 	private function insertTrad($key, $lang)
 	{
-		$row = \DB::table('translations')->select('id')->where('key','=', $key)->first();
+		
+		$this->load();
+		
+		$row = (object) $this->db->table($this->table)->select('id')->where('key','=', $key)->first();
 		if(empty($row->id)){
-			\DB::table('translations')->insert(array(
+			$this->db->table($this->table)->insert(array(
 				'key'	=> $key,
 				$lang 	=> $key
 			));
-		}		
+		}	
+	}
+	
+	public function setConfig($config){
+		foreach($config as $k => $v){
+			$this->config[$k] = $v;
+		}
 	}
 	
 	public function _($key, $lang = null)
 	{
 			
+		$this->load();
+		
 		if(is_null($lang)) $lang = $this->language;
 		if($this->insert) $this->insertTrad($key, $lang);		
-		
+			
 		return !empty($this->trads[$lang][$key]) ? $this->trads[$lang][$key] : $key;
 	}
 	
