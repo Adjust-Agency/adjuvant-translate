@@ -1,6 +1,6 @@
-<?php namespace Adjuvant;
+<?php namespace Adjuvant\Translate;
 
-class Translate {
+class Translator {
 	
 	public $insert 				= true;
 	public $language 			= "fr";
