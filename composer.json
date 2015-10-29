@@ -1,0 +1,20 @@
+{
+    "name": "adjuvant/translate",
+    "description": "Translate component for Adjust Projects",
+    "require": {
+        "illuminate/database": "5.0.*",
+        "vlucas/phpdotenv": "2.0"
+    },
+    "authors": [
+        {
+            "name": "Lemagus",
+            "email": "gabriel@adjust.be"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Adjuvant\\Translate\\": ""
+        }
+    }
+}
