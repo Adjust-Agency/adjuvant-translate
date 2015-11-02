@@ -1,6 +1,6 @@
 <?php namespace Adjuvant\Translate;
 	
-use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Capsule\Manager as Database;
 
 class Translator {
 	
@@ -20,6 +20,25 @@ class Translator {
 	protected $db					= null; 
 	
 	private $loaded	= false;
+	
+	public function __construct() {
+		$this->checkTable();
+	}
+	
+	private function checkTable() {
+		$this->checkDatabase();
+		$exists = $this->db->getConnection()->select('SHOW TABLES LIKE  "' . $this->table . '"');
+		if(empty($exists)){
+			$languages = $this->languages;
+			Database::schema()->create($this->table, function($table) use($languages){
+				$table->increments('id');
+				$table->text('key');
+				foreach($languages as $lang){
+					$table->text($lang);
+				}
+			});
+		}
+	}
 	
 	private function checkEnv()
 	{
@@ -42,7 +61,7 @@ class Translator {
 	{
 		$this->checkEnv();
 		if( is_null( $this->db ) ) {
-			$this->db = new Capsule();
+			$this->db = new Database();
 			$this->db->addConnection($this->config);
 			$this->db->setAsGlobal();			
 		}
