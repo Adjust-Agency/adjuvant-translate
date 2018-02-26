@@ -8,7 +8,7 @@ class Translator {
 	public $language 			= "fr";
 	public $table				= "translations";
 	
-	protected $languages			= array('fr', 'nl');
+	protected $languages			= array('fr', 'nl', 'en', 'de');
 	protected $trads				= array();
 	protected $config				= array(
 		'driver' => 'mysql',
